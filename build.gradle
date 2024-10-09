@@ -1,0 +1,130 @@
+buildscript {
+    repositories {
+        google()
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.7.0'
+    }
+}
+
+apply plugin: 'com.android.application'
+
+android {
+  //  compileSdkVersion project.androidTargetSdk
+     compileSdkVersion 34
+
+    defaultConfig {
+        multiDexEnabled true
+        minSdk 24
+        //   targetSdkVersion project.androidTargetSdk
+        targetSdkVersion 34
+        versionCode 10
+        versionName '0.1.0'
+    }
+
+    def validConfig
+    def keystoreFile
+    def keystorePassword
+    def keystoreAlias
+
+    try {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        keystoreFile = properties.getProperty('keystore.file')
+        keystorePassword = properties.getProperty('keystore.password')
+        keystoreAlias = properties.getProperty('keystore.alias')
+        validConfig = keystoreFile != null && keystorePassword != null && keystoreAlias != null
+    } catch (error) {
+        validConfig = false
+    }
+
+    if (validConfig) {
+        System.out.println("Release signing configured with " + keystoreFile)
+        signingConfigs {
+            release {
+                storeFile project.rootProject.file(keystoreFile)
+                storePassword keystorePassword
+                keyAlias keystoreAlias
+                keyPassword keystorePassword
+            }
+        }
+    } else {
+        System.out.println("Specify keystore.file, keystore.alias and keystore.password in local.properties to enable release signing.")
+    }
+
+    buildTypes {
+        release {
+            if (validConfig) {
+                signingConfig signingConfigs.release
+            }
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    compileOptions {
+        coreLibraryDesugaringEnabled false
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    namespace 'mv.dierenplaatjes'
+    lint {
+        disable 'UsingOnClickInXml'
+    }
+
+}
+
+
+dependencies {
+    // If you use this from an external project, use the following instead:
+       implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
+   // implementation project(':zxing-android-embedded')
+ implementation 'com.google.zxing:core:3.5.4-SNAPSHOT'
+
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.legacy:legacy-support-v13:1.0.0'
+    implementation 'androidx.activity:activity:1.9.2'
+
+    // Desugaring and multidex is required for API < 21.
+//    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // leakcanary is for development purposes only
+    // https://github.com/square/leakcanary
+   // debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
+
+    // AboutLibraries
+    implementation 'com.mikepenz:aboutlibraries:11.2.3'
+
+    //for download feature
+    implementation 'org.apache.commons:commons-compress:1.27.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'  // For downloading the file via streaming
+    implementation 'com.squareup.okio:okio:3.9.1'  // For efficient I/O operations
+    //implementation("com.google.android.material:material:1.12.0")
+}
+
+subprojects {
+    repositories {
+        google()
+        mavenLocal()
+        mavenCentral()
+    }
+
+    version = '4.3.0'
+    group = 'com.journeyapps'
+
+    ext.androidTargetSdk = 31
+    ext.zxingCore = 'com.google.zxing:core:3.5.4-SNAPSHOT'
+}
+
+repositories {
+    google()
+    mavenLocal()
+    mavenCentral()
+}
+

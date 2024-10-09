@@ -1,0 +1,14 @@
+gen
+target
+.gradle
+build
+.idea
+maven-repository
+*.iml
+local.properties
+mvn-clone
+*.keystore
+.project
+.settings
+.classpath
+/java_pid3372.hprof
